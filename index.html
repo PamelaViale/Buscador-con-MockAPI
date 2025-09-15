@@ -1,13 +1,148 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trabajo Práctico Integrador - Buscador con MockAPI</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
 </head>
 <body>
+ <!-- Nav -->
+  <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="#">
+        <strong> Productos</strong>
+      </a>
+    </div>
+  </nav>
 
+  <!-- Main Section -->
+  <section class="section">
+    <div class="container">
+      <h1 class="title has-text-centered">Gestión de Productos</h1>
 
+      <!-- Btn agregar producto -->
+      <div class="has-text-right mb-4">
+        <button id="btn-abrir-form" class="button is-primary">+ Agregar Producto</button>
+      </div>
+
+      <!-- filtros -->
+      <div class="box">
+        <h2 class="subtitle">Filtrar Productos</h2>
+        <div class="columns is-multiline">
+          <!-- Buscar por nombre -->
+          <div class="column is-4">
+            <div class="field">
+              <div class="control has-icons-left">
+                <input id="filtro-nombre" class="input" type="text" placeholder="Buscar por nombre">
+                <span class="icon is-small is-left">
+                  <i class="fas fa-search"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filtrar por categoría -->
+          <div class="column is-3">
+            <div class="field">
+              <div class="control">
+                <div class="select is-fullwidth">
+                  <select id="filtro-categoria">
+                    <option value="">Todas las categorías</option>
+                    <option value="Electrónica">Electrónica</option>
+                    <option value="Hogar">Hogar</option>
+                    <option value="Ropa">Ropa</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filtrar por precio -->
+          <div class="column is-3">
+            <div class="field">
+              <div class="control">
+                <div class="select is-fullwidth">
+                  <select id="filtro-precio">
+                    <option value="">Todos los precios</option>
+                    <option value="low">Menos de $100</option>
+                    <option value="mid">$100 - $500</option>
+                    <option value="high">Más de $500</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Btn limpiar filtros -->
+          <div class="column is-2 has-text-right">
+            <button id="btn-limpiar" class="button is-light">Limpiar filtros</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenedor de productos -->
+      <div id="productos-container" class="columns is-multiline">
+        
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Ventana Modal -->
+  <div id="modal-form" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title" id="modal-title">Agregar Producto</p>
+        <button class="delete" aria-label="close" id="btn-cerrar-modal"></button>
+      </header>
+      <section class="modal-card-body">
+        <form id="form-producto">
+          <div class="field">
+            <label class="label">Nombre</label>
+            <div class="control">
+              <input id="nombre" class="input" type="text" placeholder="Ej. Notebook" required>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Precio</label>
+            <div class="control">
+              <input id="precio" class="input" type="number" step="0.01" placeholder="Ej. 499.99" required>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Categoría</label>
+            <div class="control">
+              <div class="select is-fullwidth">
+                <select id="categoria" required>
+                  <option value="">Seleccionar</option>
+                  <option value="Electrónica">Electrónica</option>
+                  <option value="Hogar">Hogar</option>
+                  <option value="Ropa">Ropa</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Imagen (URL)</label>
+            <div class="control">
+              <input id="imagen" class="input" type="url" placeholder="https://ejemplo.com/imagen.jpg">
+            </div>
+          </div>
+        </form>
+      </section>
+      <footer class="modal-card-foot">
+        <button id="btn-guardar" class="button is-success">Guardar</button>
+        <button id="btn-cancelar" class="button">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+
+    <script src="https://kit.fontawesome.com/a2e0e6ad65.js" crossorigin="anonymous"></script>
 
     <script src="app.js"></script>
 </body>
