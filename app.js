@@ -7,6 +7,19 @@ const inputBusqueda = document.getElementById("filtro-nombre")
 const filtroCategoria = document.getElementById("filtro-categoria")
 const filtroPrecio = document.getElementById("filtro-precio")
 const btnLimpiar = document.getElementById("btn-limpiar")
+const modalForm = document.getElementById("modal-form")
+const btnAbrirForm = document.getElementById("btn-abrir-form")
+const btnCerrarModal = document.getElementById("btn-cerrar-modal")
+const btnCancelar = document.getElementById("btn-cancelar")
+const btnGuardar = document.getElementById("btn-guardar")
+const formProducto = document.getElementById("form-producto")
+const modalTitle = document.getElementById("modal-title")
+
+
+
+
+
+
 
 let productosCargados = []
 
@@ -112,6 +125,7 @@ function renderizarProductos(productos) {
 obtenerProductos()
 
 
+
 // eventos filtros
 inputBusqueda.addEventListener("input", aplicarFiltros)
 filtroCategoria.addEventListener("change", aplicarFiltros)
@@ -125,4 +139,73 @@ btnLimpiar.addEventListener("click", () => {
 
 
 obtenerProductos()
+
+let editId = null  
+
+
+function abrirModal(modo = "crear", producto = null) {
+  modalForm.classList.add("is-active")
+  modalTitle.textContent = modo === "crear" ? "Agregar Producto" : "Editar Producto"
+
+  if (modo === "crear") {
+    formProducto.reset()
+    editId = null
+  } else if (producto) {
+    document.getElementById("nombre").value = producto.name
+    document.getElementById("precio").value = producto.price
+    document.getElementById("categoria").value = producto.categoria
+    document.getElementById("imagen").value = producto.imagen
+    editId = producto.id
+  }
+}
+
+function cerrarModal() {
+  modalForm.classList.remove("is-active")
+  formProducto.reset()
+  editId = null
+}
+
+btnAbrirForm.addEventListener("click", () => abrirModal("crear"))
+btnCerrarModal.addEventListener("click", cerrarModal)
+btnCancelar.addEventListener("click", cerrarModal)
+
+// guardo producto
+
+btnGuardar.addEventListener("click", async (e) => {
+  e.preventDefault()
+
+  const nuevoProducto = {
+    name: document.getElementById("nombre").value,
+    price: document.getElementById("precio").value,
+    categoria: document.getElementById("categoria").value,
+    imagen: document.getElementById("imagen").value || "https://via.placeholder.com/300"
+  }
+
+  try {
+    let res
+    if (editId) {
+      // edito
+      res = await fetch(`${API_URL}/${editId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nuevoProducto)
+      })
+    } else {
+      // creo
+      res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nuevoProducto)
+      })
+    }
+
+    if (!res.ok) throw new Error(`Error HTTP: ${res.status}`)
+
+    cerrarModal()
+    obtenerProductos()
+  } catch (error) {
+    alert(`❌ Error: ${error.message}`)
+    console.error(error)
+  }
+})
 
