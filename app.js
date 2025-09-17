@@ -3,23 +3,37 @@ const API_URL = "https://68ba1b9d6aaf059a5b597970.mockapi.io/api/productos"
 
 
 const productosContainer = document.getElementById("productos-container")
+const inputBusqueda = document.getElementById("filtro-nombre")
 
-// obtener productos
+
+let productosCargados = []
+
+
 async function obtenerProductos() {
   try {
-    const res = await fetch(API_URL);
+    const res = await fetch(API_URL)
     if (!res.ok) throw new Error(`Error HTTP: ${res.status}`)
-    const data = await res.json();
-    renderizarProductos(data);
+    const datos = await res.json();
+    productosCargados = datos; 
+    renderizarProductos(datos);
   } catch (error) {
-    console.error("Error al obtener productos:", error)
     productosContainer.innerHTML = `
       <div class="notification is-danger">
         ❌ Error al cargar productos: ${error.message}
       </div>
-    `
+    `;
   }
 }
+
+// Filtro por nombre
+inputBusqueda.addEventListener("input", (e) => {
+  const texto = e.target.value.toLowerCase().trim()
+  const filtrados = productosCargados.filter(p =>
+    p.name.toLowerCase().includes(texto)
+  )
+  renderizarProductos(filtrados)
+})
+
 
 // renderizo cards 
 function renderizarProductos(productos) {
@@ -35,7 +49,7 @@ function renderizarProductos(productos) {
   }
 
   productos.forEach(producto => {
-    const { id, name, price, imagen, categoria } = producto;
+    const { id, name, price, imagen, categoria } = producto
 
     const card = document.createElement("div")
     card.className = "column is-one-quarter"
@@ -61,9 +75,13 @@ function renderizarProductos(productos) {
       </div>
     `
 
-    productosContainer.appendChild(card);
-  });
+    productosContainer.appendChild(card)
+  })
 }
 
 
 obtenerProductos()
+
+
+
+
