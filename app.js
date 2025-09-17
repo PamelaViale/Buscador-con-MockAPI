@@ -110,10 +110,11 @@ function renderizarProductos(productos) {
           <p><strong>Precio:</strong> $${price}</p>
           <p><strong>Categoría:</strong> ${categoria || "Sin categoría"}</p>
         </div>
-        <footer class="card-footer">
-          <a href="#" class="card-footer-item has-text-warning">✏️ Editar</a>
-          <a href="#" class="card-footer-item has-text-danger">🗑️ Eliminar</a>
-        </footer>
+       <footer class="card-footer">
+      <a href="#" class="card-footer-item has-text-warning" onclick="abrirModal('${id}')">✏️ Editar</a>
+      <a href="#" class="card-footer-item has-text-danger" onclick="eliminarProducto('${id}')">🗑️ Eliminar</a>
+    </footer>
+
       </div>
     `
 
@@ -140,22 +141,28 @@ btnLimpiar.addEventListener("click", () => {
 
 obtenerProductos()
 
-let editId = null  
+let editId = null 
 
-
-function abrirModal(modo = "crear", producto = null) {
+function abrirModal(id = null) {
   modalForm.classList.add("is-active")
-  modalTitle.textContent = modo === "crear" ? "Agregar Producto" : "Editar Producto"
+  formProducto.reset()
 
-  if (modo === "crear") {
-    formProducto.reset()
-    editId = null
-  } else if (producto) {
+  if (id) {
+    // edito producto
+    const producto = productosCargados.find(p => p.id == id)
+    if (!producto) return
+
     document.getElementById("nombre").value = producto.name
     document.getElementById("precio").value = producto.price
     document.getElementById("categoria").value = producto.categoria
     document.getElementById("imagen").value = producto.imagen
-    editId = producto.id
+
+    modalTitle.textContent = "Editar Producto"
+    editId = id
+  } else {
+    
+    modalTitle.textContent = "Agregar Producto"
+    editId = null
   }
 }
 
@@ -209,3 +216,21 @@ btnGuardar.addEventListener("click", async (e) => {
   }
 })
 
+//elimino producto
+window.eliminarProducto = async function (id) {
+  const confirmar = confirm("⚠️ ¿Seguro que querés eliminar este producto? Esta acción no se puede deshacer.")
+  if (!confirmar) return
+
+  try {
+    const res = await fetch(`${API_URL}/${id}`, {
+      method: "DELETE"
+    })
+    if (!res.ok) throw new Error(`Error HTTP: ${res.status}`)
+
+    alert("✅ Producto eliminado correctamente")
+    obtenerProductos()
+  } catch (error) {
+    alert(`❌ Error al eliminar: ${error.message}`)
+    console.error(error)
+  }
+}
