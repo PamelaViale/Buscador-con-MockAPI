@@ -4,11 +4,13 @@ const API_URL = "https://68ba1b9d6aaf059a5b597970.mockapi.io/api/productos"
 
 const productosContainer = document.getElementById("productos-container")
 const inputBusqueda = document.getElementById("filtro-nombre")
-
+const filtroCategoria = document.getElementById("filtro-categoria")
+const filtroPrecio = document.getElementById("filtro-precio")
+const btnLimpiar = document.getElementById("btn-limpiar")
 
 let productosCargados = []
 
-
+// obtengo productos
 async function obtenerProductos() {
   try {
     const res = await fetch(API_URL)
@@ -34,7 +36,34 @@ inputBusqueda.addEventListener("input", (e) => {
   renderizarProductos(filtrados)
 })
 
+// aplico filtros
+function aplicarFiltros() {
+  let resultado = [...productosCargados]
 
+  const texto = inputBusqueda.value.toLowerCase().trim()
+  if (texto) {
+    resultado = resultado.filter(p =>
+      p.name.toLowerCase().includes(texto)
+    )
+  }
+
+  const categoria = filtroCategoria.value
+  if (categoria) {
+    resultado = resultado.filter(p => p.categoria === categoria)
+  }
+
+  const precio = filtroPrecio.value
+  if (precio) {
+    resultado = resultado.filter(p => {
+      const precioNum = parseFloat(p.price)
+      if (precio === "low") return precioNum < 100
+      if (precio === "mid") return precioNum >= 100 && precioNum <= 500
+      if (precio === "high") return precioNum > 500
+    })
+  }
+
+  renderizarProductos(resultado)
+}
 // renderizo cards 
 function renderizarProductos(productos) {
   productosContainer.innerHTML = ""
@@ -83,5 +112,17 @@ function renderizarProductos(productos) {
 obtenerProductos()
 
 
+// eventos filtros
+inputBusqueda.addEventListener("input", aplicarFiltros)
+filtroCategoria.addEventListener("change", aplicarFiltros)
+filtroPrecio.addEventListener("change", aplicarFiltros)
+btnLimpiar.addEventListener("click", () => {
+  inputBusqueda.value = ""
+  filtroCategoria.value = ""
+  filtroPrecio.value = ""
+  renderizarProductos(productosCargados)
+})
 
+
+obtenerProductos()
 
