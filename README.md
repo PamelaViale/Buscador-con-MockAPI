@@ -58,10 +58,9 @@ Esta aplicación proporciona un sistema completo de gestión de productos que pe
 👉 https://pamelaviale.github.io/Buscador-con-MockAPI/
 
 📁 Estructura del proyecto
-Buscador-con-MockAPI/
-├── app.js             # Lógica principal de la aplicación
-├── index.html         # Estructura HTML y componentes visuales
-└── README.md          # Documentación del proyecto
+
+![bb](https://github.com/user-attachments/assets/547fcd32-1557-41f6-b026-48cb54e59e2b)
+
 
 🔗API y endpoints
 La aplicación utiliza MockAPI como backend. Los endpoints utilizados son:
