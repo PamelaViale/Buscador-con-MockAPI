@@ -1,7 +1,6 @@
 //  MockAPI 
 const API_URL = "https://68ba1b9d6aaf059a5b597970.mockapi.io/api/productos"
 
-
 const productosContainer = document.getElementById("productos-container")
 const inputBusqueda = document.getElementById("filtro-nombre")
 const filtroCategoria = document.getElementById("filtro-categoria")
@@ -15,64 +14,39 @@ const btnGuardar = document.getElementById("btn-guardar")
 const formProducto = document.getElementById("form-producto")
 const modalTitle = document.getElementById("modal-title")
 const loader = document.getElementById("loader")
+const notificaciones = document.getElementById("notificaciones")
 
 let productosCargados = []
+let editId = null 
 
-// obtengo productos
+
+//  obtengo productos (con loader)
+
 async function obtenerProductos() {
   try {
+    loader.style.display = "block"   
+    productosContainer.innerHTML = "" 
+
     const res = await fetch(API_URL)
     if (!res.ok) throw new Error(`Error HTTP: ${res.status}`)
-    const datos = await res.json();
-    productosCargados = datos; 
-    renderizarProductos(datos);
+
+    const datos = await res.json()
+    productosCargados = datos
+    renderizarProductos(datos)
   } catch (error) {
     productosContainer.innerHTML = `
       <div class="notification is-danger">
         ❌ Error al cargar productos: ${error.message}
       </div>
-    `;
+    `
+  } finally {
+    loader.style.display = "none"   
   }
 }
 
-// Filtro por nombre
-inputBusqueda.addEventListener("input", (e) => {
-  const texto = e.target.value.toLowerCase().trim()
-  const filtrados = productosCargados.filter(p =>
-    p.name.toLowerCase().includes(texto)
-  )
-  renderizarProductos(filtrados)
-})
 
-// aplico filtros
-function aplicarFiltros() {
-  let resultado = [...productosCargados]
+//  renderizo cards
 
-  const texto = inputBusqueda.value.toLowerCase().trim()
-  if (texto) {
-    resultado = resultado.filter(p =>
-      p.name.toLowerCase().includes(texto)
-    )
-  }
-
-  const categoria = filtroCategoria.value
-  if (categoria) {
-    resultado = resultado.filter(p => p.categoria === categoria)
-  }
-
-  const precio = filtroPrecio.value
-  if (precio) {
-    resultado = resultado.filter(p => {
-      const precioNum = parseFloat(p.price)
-      if (precio === "low") return precioNum < 100
-      if (precio === "mid") return precioNum >= 100 && precioNum <= 500
-      if (precio === "high") return precioNum > 500
-    })
-  }
-
-  renderizarProductos(resultado)
-}
-// renderizo cards 
 function renderizarProductos(productos) {
   productosContainer.innerHTML = ""
 
@@ -105,11 +79,10 @@ function renderizarProductos(productos) {
           <p><strong>Precio:</strong> $${price}</p>
           <p><strong>Categoría:</strong> ${categoria || "Sin categoría"}</p>
         </div>
-       <footer class="card-footer">
-      <a href="#" class="card-footer-item has-text-warning" onclick="abrirModal('${id}')">✏️ Editar</a>
-      <a href="#" class="card-footer-item has-text-danger" onclick="eliminarProducto('${id}')">🗑️ Eliminar</a>
-    </footer>
-
+        <footer class="card-footer">
+          <a href="#" class="card-footer-item has-text-warning" onclick="abrirModal('${id}')">✏️ Editar</a>
+          <a href="#" class="card-footer-item has-text-danger" onclick="eliminarProducto('${id}')">🗑️ Eliminar</a>
+        </footer>
       </div>
     `
 
@@ -117,33 +90,43 @@ function renderizarProductos(productos) {
   })
 }
 
+//filtros
+function aplicarFiltros() {
+  let resultado = [...productosCargados]
 
-obtenerProductos()
+  const texto = inputBusqueda.value.toLowerCase().trim()
+  if (texto) {
+    resultado = resultado.filter(p =>
+      p.name.toLowerCase().includes(texto)
+    )
+  }
+
+  const categoria = filtroCategoria.value
+  if (categoria) {
+    resultado = resultado.filter(p => p.categoria === categoria)
+  }
+
+  const precio = filtroPrecio.value
+  if (precio) {
+    resultado = resultado.filter(p => {
+      const precioNum = parseFloat(p.price)
+      if (precio === "low") return precioNum < 100
+      if (precio === "mid") return precioNum >= 100 && precioNum <= 500
+      if (precio === "high") return precioNum > 500
+    })
+  }
+
+  renderizarProductos(resultado)
+}
 
 
-
-// eventos filtros
-inputBusqueda.addEventListener("input", aplicarFiltros)
-filtroCategoria.addEventListener("change", aplicarFiltros)
-filtroPrecio.addEventListener("change", aplicarFiltros)
-btnLimpiar.addEventListener("click", () => {
-  inputBusqueda.value = ""
-  filtroCategoria.value = ""
-  filtroPrecio.value = ""
-  renderizarProductos(productosCargados)
-})
-
-
-obtenerProductos()
-
-let editId = null 
+//   modal
 
 function abrirModal(id = null) {
   modalForm.classList.add("is-active")
   formProducto.reset()
 
   if (id) {
-    // edito producto
     const producto = productosCargados.find(p => p.id == id)
     if (!producto) return
 
@@ -155,7 +138,6 @@ function abrirModal(id = null) {
     modalTitle.textContent = "Editar Producto"
     editId = id
   } else {
-    
     modalTitle.textContent = "Agregar Producto"
     editId = null
   }
@@ -167,12 +149,7 @@ function cerrarModal() {
   editId = null
 }
 
-btnAbrirForm.addEventListener("click", () => abrirModal("crear"))
-btnCerrarModal.addEventListener("click", cerrarModal)
-btnCancelar.addEventListener("click", cerrarModal)
-
-// guardo producto
-
+// guardo productos
 btnGuardar.addEventListener("click", async (e) => {
   e.preventDefault()
 
@@ -186,14 +163,12 @@ btnGuardar.addEventListener("click", async (e) => {
   try {
     let res
     if (editId) {
-      // edito
       res = await fetch(`${API_URL}/${editId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(nuevoProducto)
       })
     } else {
-      // creo
       res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -205,13 +180,17 @@ btnGuardar.addEventListener("click", async (e) => {
 
     cerrarModal()
     obtenerProductos()
+    mostrarNotificacion(editId ? "✅ Producto actualizado correctamente" : "✅ Producto creado correctamente", "is-success")
+
   } catch (error) {
-    alert(`❌ Error: ${error.message}`)
+    mostrarNotificacion(`❌ Error: ${error.message}`, "is-danger")
     console.error(error)
   }
 })
 
-//elimino producto
+
+//   elimino productos
+
 window.eliminarProducto = async function (id) {
   const confirmar = confirm("⚠️ ¿Seguro que querés eliminar este producto? Esta acción no se puede deshacer.")
   if (!confirmar) return
@@ -222,34 +201,44 @@ window.eliminarProducto = async function (id) {
     })
     if (!res.ok) throw new Error(`Error HTTP: ${res.status}`)
 
-    alert("✅ Producto eliminado correctamente")
+    mostrarNotificacion("✅ Producto eliminado correctamente", "is-success")
     obtenerProductos()
   } catch (error) {
-    alert(`❌ Error al eliminar: ${error.message}`)
+    mostrarNotificacion(`❌ Error al eliminar: ${error.message}`, "is-danger")
     console.error(error)
   }
 }
 
-// obtengo productos - loader
-async function obtenerProductos() {
-  try {
-    loader.style.display = "block"   
-    productosContainer.innerHTML = "" 
 
-    const res = await fetch(API_URL)
-    if (!res.ok) throw new Error(`Error HTTP: ${res.status}`)
+//   notificaciones
 
-    const datos = await res.json()
-    productosCargados = datos
-    renderizarProductos(datos)
-  } catch (error) {
-    productosContainer.innerHTML = `
-      <div class="notification is-danger">
-        ❌ Error al cargar productos: ${error.message}
-      </div>
-    `
-  } finally {
-    loader.style.display = "none"   
-  }
+function mostrarNotificacion(mensaje, tipo = "is-info") {
+  notificaciones.innerHTML = `
+    <div class="notification ${tipo}">
+      <button class="delete" onclick="this.parentElement.remove()"></button>
+      ${mensaje}
+    </div>
+  `
+
+  setTimeout(() => {
+    notificaciones.innerHTML = ""
+  }, 3000)
 }
 
+// eventos
+inputBusqueda.addEventListener("input", aplicarFiltros)
+filtroCategoria.addEventListener("change", aplicarFiltros)
+filtroPrecio.addEventListener("change", aplicarFiltros)
+btnLimpiar.addEventListener("click", () => {
+  inputBusqueda.value = ""
+  filtroCategoria.value = ""
+  filtroPrecio.value = ""
+  renderizarProductos(productosCargados)
+})
+
+btnAbrirForm.addEventListener("click", () => abrirModal())
+btnCerrarModal.addEventListener("click", cerrarModal)
+btnCancelar.addEventListener("click", cerrarModal)
+
+
+obtenerProductos()
