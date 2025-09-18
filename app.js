@@ -14,12 +14,7 @@ const btnCancelar = document.getElementById("btn-cancelar")
 const btnGuardar = document.getElementById("btn-guardar")
 const formProducto = document.getElementById("form-producto")
 const modalTitle = document.getElementById("modal-title")
-
-
-
-
-
-
+const loader = document.getElementById("loader")
 
 let productosCargados = []
 
@@ -234,3 +229,27 @@ window.eliminarProducto = async function (id) {
     console.error(error)
   }
 }
+
+// obtengo productos - loader
+async function obtenerProductos() {
+  try {
+    loader.style.display = "block"   
+    productosContainer.innerHTML = "" 
+
+    const res = await fetch(API_URL)
+    if (!res.ok) throw new Error(`Error HTTP: ${res.status}`)
+
+    const datos = await res.json()
+    productosCargados = datos
+    renderizarProductos(datos)
+  } catch (error) {
+    productosContainer.innerHTML = `
+      <div class="notification is-danger">
+        ❌ Error al cargar productos: ${error.message}
+      </div>
+    `
+  } finally {
+    loader.style.display = "none"   
+  }
+}
+
