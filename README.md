@@ -55,7 +55,7 @@ Esta aplicación proporciona un sistema completo de gestión de productos que pe
 (o utiliza la extensión Live Server de VS Code para una mejor experiencia).
  
 3.Alternativamente, puedes ver la versión desplegada en:
-👉 [URL del deploy] 
+👉 https://pamelaviale.github.io/Buscador-con-MockAPI/
 
 📁 Estructura del proyecto
 Buscador-con-MockAPI/
